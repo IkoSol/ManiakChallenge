@@ -1,25 +1,54 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Text, Label, Form, Item, Input, Button, View} from 'native-base';
 import {TouchableOpacity, StyleSheet} from 'react-native';
 
-export const LoginForm = ({showRegister}) => {
+export const LoginForm = ({showRegister, navigation}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isValidForm, setIsValidForm] = useState();
+
+  const validateEmail = email => {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  useEffect(() => {
+    let isValidEmail = validateEmail(email);
+    if (isValidEmail && password !== '') {
+      setIsValidForm(true);
+    } else {
+      setIsValidForm(false);
+    }
+  }, [email, password]);
+
   return (
     <>
       <Label style={styles.title}>Welcome!</Label>
-      <Form style={{width: '90%'}}>
+      <Form style={styles.form}>
         <Item floatingLabel>
-          <Label>Username</Label>
-          <Input />
+          <Label>Email</Label>
+          <Input
+            value={email}
+            autoCapitalize="none"
+            keyboardType={'email-address'}
+            onChangeText={(value) => setEmail(value)}
+          />
         </Item>
         <Item floatingLabel last>
           <Label>Password</Label>
-          <Input />
+          <Input
+            value={password}
+            autoCapitalize="none"
+            secureTextEntry={true}
+            onChangeText={(value) => setPassword(value)}
+          />
         </Item>
       </Form>
       <Button
-        onPress={() => console.log('Login Btn')}
+        onPress={() => navigation.replace('Home')}
+        disabled={!isValidForm}
         warning
-        style={styles.button}>
+        style={[styles.button, {opacity: !isValidForm ? 0.5 : 1}]}>
         <Text style={styles.textBtn}>Login</Text>
       </Button>
       <View style={styles.adviceContainer}>
@@ -37,6 +66,9 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: 30,
     fontWeight: 'bold',
+  },
+  form: {
+    width: '90%',
   },
   button: {
     alignSelf: 'center',

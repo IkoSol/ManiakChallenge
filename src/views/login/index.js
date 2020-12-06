@@ -27,7 +27,10 @@ export const Login = ({navigation}) => {
             <View style={styles.component}>
               <Image source={logo} style={styles.logo} />
               {!registerView ?
-                <LoginForm showRegister={() => handleShowRegister()} />
+                <LoginForm
+                  navigation={navigation}
+                  showRegister={() => handleShowRegister()}
+                />
               :
                 <RegisterForm hideRegister={() => handleHideRegister()} />
               }
