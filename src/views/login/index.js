@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import {StyleSheet, Dimensions, ImageBackground, Image} from 'react-native';
+import {StyleSheet, Dimensions, ImageBackground, Image, ActivityIndicator} from 'react-native';
 import {Container, Content, View} from 'native-base';
-import backgroundImg from '../../../images/background_2.jpg';
+import backgroundImg from '../../../images/background.jpeg';
 import logo from '../../../images/logo.png';
 import {LoginForm} from '../../components/loginForm';
 import {RegisterForm} from '../../components/registerForm';
@@ -10,6 +10,7 @@ const {width, height} = Dimensions.get('window');
 
 export const Login = ({navigation}) => {
   const [registerView, setRegisterView] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleShowRegister = () => {
     setRegisterView(true);
@@ -20,7 +21,12 @@ export const Login = ({navigation}) => {
   };
 
   return (
-    <Container>
+    <Container style={styles.content}>
+      {isLoading &&
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator size="large" />
+        </View>
+      }
       <ImageBackground source={backgroundImg} style={styles.backgroundImg}>
         <Content>
           <View style={styles.body}>
@@ -30,6 +36,7 @@ export const Login = ({navigation}) => {
                 <LoginForm
                   navigation={navigation}
                   showRegister={() => handleShowRegister()}
+                  setIsLoading={loading => setIsLoading(loading)}
                 />
               :
                 <RegisterForm hideRegister={() => handleHideRegister()} />
@@ -43,9 +50,19 @@ export const Login = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flex: 1,
+    height: height - 121,
+  },
+  activityIndicator: {
+    width: width,
     height: height,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    zIndex: 2,
+    opacity: 0.4,
+    backgroundColor: 'white',
   },
   backgroundImg: {
     width: '100%',

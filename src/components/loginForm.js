@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import {Text, Label, Form, Item, Input, Button, View} from 'native-base';
-import {TouchableOpacity, StyleSheet} from 'react-native';
+import {TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const LoginForm = ({showRegister, navigation}) => {
+export const LoginForm = ({showRegister, setIsLoading, navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isValidForm, setIsValidForm] = useState();
@@ -20,6 +21,44 @@ export const LoginForm = ({showRegister, navigation}) => {
       setIsValidForm(false);
     }
   }, [email, password]);
+
+  const handleLogin = async () => {
+    setIsLoading(true);
+    let url = 'https://challenge.maniak.co/api/login';
+    let body = {
+      username: email,
+      password: password,
+    };
+    console.log('Post: ', url, body);
+    try {
+      let response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      let json = await response.json();
+      console.log('RESPONSE: ', json);
+      storeToken(json.token);
+      navigation.replace('Home', {token: json});
+      setIsLoading(false);
+      return json.movies;
+    } catch (error) {
+      Alert.alert('Invalid username or password');
+      setIsLoading(false);
+      console.error(error.message);
+    }
+  };
+
+  const storeToken = async token => {
+    try {
+      await AsyncStorage.setItem('userToken', token);
+    } catch (error) {
+      console.error('ERROR SAVING TOKEN');
+    }
+  };
 
   return (
     <>
@@ -45,16 +84,16 @@ export const LoginForm = ({showRegister, navigation}) => {
         </Item>
       </Form>
       <Button
-        onPress={() => navigation.replace('Home')}
+        onPress={() => handleLogin()}
         disabled={!isValidForm}
         warning
         style={[styles.button, {opacity: !isValidForm ? 0.5 : 1}]}>
         <Text style={styles.textBtn}>Login</Text>
       </Button>
       <View style={styles.adviceContainer}>
-        <Text style={styles.adviceTxt}>If you are not a member,</Text>
+        <Text style={styles.adviceTxt}>If you are not a member, </Text>
         <TouchableOpacity onPress={() => showRegister()}>
-          <Text style={styles.registerTouchable}> Register now!</Text>
+          <Text style={styles.registerTouchable}>Register now!</Text>
         </TouchableOpacity>
       </View>
     </>

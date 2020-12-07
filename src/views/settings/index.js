@@ -1,10 +1,32 @@
 import React from 'react';
 import {Text, Button} from 'native-base';
-import {SafeAreaView, StyleSheet} from 'react-native';
+import {SafeAreaView, StyleSheet, Alert} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Settings = ({navigation}) => {
   const handleLogout = () => {
-    navigation.replace('Login');
+    Alert.alert(
+      "Logging out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "Log out", onPress: () => doLogout() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const doLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      navigation.replace('Login');
+    } catch (err) {
+      console.log('Error', err);
+    }
   };
 
   return (
